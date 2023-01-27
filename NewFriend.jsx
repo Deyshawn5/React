@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { newFriend } from "../users/friendsService";
+import { newFriend, editFriend } from "../users/friendsService";
 import toastr from "toastr";
 import { useLocation } from "react-router-dom";
 
@@ -10,9 +10,10 @@ function NewFriend(props) {
   const [newFriendData, setNewFriendData] = useState({
     title: "",
     bio: "",
-    summary: "",
+    summary: "The End",
     headline: "",
     slug: "",
+    id: 0,
     statusId: "",
     primaryImage: "",
   });
@@ -54,22 +55,35 @@ function NewFriend(props) {
     }
   }, [props]);
 
-  const onRegisterClick = (e) => {
+  const onEditClick = (e) => {
     e.preventDefault();
     let payload = newFriendData;
-    newFriend(payload).then(onRegisterSuccess).catch(onRegisterError);
+    let id = newFriendData.id;
+    if (newFriendData.id === 0) {
+      newFriend(payload).then(onRegisterSuccess).catch(onRegisterError);
+    } else {
+      editFriend(id, payload).then(onEditSuccess).catch(onEditError);
+      console.log(id);
+    }
   };
 
   const onRegisterSuccess = () => {
-    toastr.success("User Registered Success", "Register Success");
+    toastr.success("Friend Updated");
   };
   const onRegisterError = () => {
-    toastr.error("Register Was Not Valid, Try Again");
+    toastr.error("Update Failed, Please Try Again");
+  };
+
+  const onEditSuccess = () => {
+    toastr.success("Friend Updated");
+  };
+  const onEditError = () => {
+    toastr.error("Update Failed, Please Try Again");
   };
 
   return (
     <React.Fragment>
-      <h1>New</h1>
+      <h1> {newFriendData.id === 0 ? "Add Friend" : "Edit Friend"}</h1>
       <form>
         <div class="mb-3">
           <label for="exampleTitle" class="form-label">
@@ -155,9 +169,12 @@ function NewFriend(props) {
             aria-describedby="primaryImage"
           />
         </div>
-        <button type="submit" class="btn btn-primary" onClick={onRegisterClick}>
-          Add Friend
+        <button variant="primary" type="button" onClick={onEditClick}>
+          {newFriendData.id === 0 ? "Add" : "Edit"}
         </button>
+        {/* if  newFriendData.id === 0
+        ? then button Add or Edit
+          */}
       </form>
     </React.Fragment>
   );
